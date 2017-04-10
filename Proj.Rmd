@@ -1,0 +1,130 @@
+---
+title: "Untitled"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+#PROJET DE STATISTIQUE : Insertion professionnelle des masters
+
+#Par : TSialoungou et Tsialoungou-Rezigui
+
+```{r}
+
+df <- read.csv("C:/Users/DELL/Desktop/master.csv", sep =';')
+df
+
+```
+
+#Repartition des salaires bruts annuels en fonction des disciplines et par annee
+
+#Nous constatons que le salaitre brut annuel pour les Masters Lettres, Langues, Ensemble sciences Humaines ety Sociales
+#évoluent au fil des années.
+```{r}
+library(dplyr)
+
+
+d2 <- df %>% 
+  filter(salaire_brut_annuel_estime != 'ns',salaire_brut_annuel_estime != 'nd',salaire_brut_annuel_estime != '') %>%
+  group_by(discipline,annee) %>%
+  summarise(salaire_med=mean(as.numeric(salaire_brut_annuel_estime))) 
+
+d2 %>%
+  ggplot(aes(x=discipline, y=salaire_med)) + geom_point(aes(colour=annee))+ coord_flip()
+```
+
+
+
+#TAUX D'INSERTION PAR DISCIPLINE
+#Nous observons un fort taux d'insertion, près de 90, dans les pisciplnes de Master enseignement, informatique, gestion et autres sciences technologiques. Cependant, Les Masters lettres, langues, art, sciences de la vie et de la terre et Histoire-geographie representesntune faible densité d'environ 20 par rapport aux autres Masters.#
+
+```{r}
+
+d2 <- df %>% 
+  filter(taux_dinsertion != 'ns',taux_dinsertion != 'nd',taux_dinsertion != '',taux_de_chomage_regional!='ns',taux_de_chomage_regional!='nd',taux_de_chomage_regional!='') %>%
+  group_by(discipline) %>%
+  summarise(taux_moy=mean(as.numeric(as.character(taux_dinsertion)))) 
+
+d2 %>%
+  ggplot(aes(x=discipline, y=taux_moy)) + geom_bar(stat='identity') + coord_flip()
+
+```
+
+
+#TAUX MOYEN DES EMPLOIS STABLES PAR DISCIPLINE
+#Nous observons que les étudiants issues des disciplines Histoire-geographie, Sciences de la vie et la terre, Psychologie et Aures Sciences Humaines et Sciociales trouvent moins de boulots stables, environ 52% par rapport aux autres Masters. Ce qui sous entend que ces masters sont moins solicités #
+```{r}
+d3 <- df %>% 
+  mutate(tc=as.numeric(as.character(emplois_stables)))
+d2 <- df %>% 
+  filter(taux_dinsertion != 'ns',taux_dinsertion != 'nd',taux_dinsertion != '',emplois_stables!='ns',emplois_stables!='nd',emplois_stables!='', emplois_stables!= 'NA') %>%
+  group_by(discipline) %>%
+  summarise(taux_moy=mean(as.numeric(as.character(emplois_stables)))) 
+
+d2 %>%
+  ggplot(aes(x=discipline, y=taux_moy)) + geom_bar(stat='identity') + coord_flip()
+
+```
+
+
+
+#Salaire net median des emplois a temps plein par académie d'origine#
+
+
+```{r}
+
+d2 <- df %>% 
+  filter(academie != '', salaire_net_median_des_emplois_a_temps_plein!='ns',salaire_net_median_des_emplois_a_temps_plein!='nd',salaire_net_median_des_emplois_a_temps_plein!='') %>%
+  group_by(academie) %>%
+  summarise(taux_moy=mean(as.numeric(as.character(salaire_net_median_des_emplois_a_temps_plein)))) 
+
+d2 %>%
+  ggplot(aes(x=academie, y=taux_moy)) + geom_bar(stat='identity') + coord_flip()
+
+```
+
+
+
+#TAUX D'INSERTION DES S ETUDIANTS FEMININS PAR LEUR DISCIPLINE#
+```{r}
+
+d2 <- df %>% 
+  filter(femmes != '',femmes != 'nd',femmes != 'ns',femmes != 'NA') %>%
+  group_by(discipline,annee) %>%
+  summarise(taux_moy=mean(as.numeric(as.character(femmes)))) 
+
+d2 %>%
+  ggplot(aes(x=discipline, y=taux_moy)) + geom_point(aes(colour=annee)) + coord_flip()
+
+```
+
+
+#Salaire net median des emplois a temps plein par année#
+```{r}
+
+d2 <- df %>% 
+  filter(salaire_net_median_des_emplois_a_temps_plein!='ns',salaire_net_median_des_emplois_a_temps_plein!='nd',salaire_net_median_des_emplois_a_temps_plein!='', discipline == 'Informatique') %>%
+  group_by(annee) %>%
+  summarise(taux_moy=mean(as.numeric(as.character(salaire_net_median_des_emplois_a_temps_plein)))) 
+
+d2 %>%
+  ggplot(aes(x=annee, y=taux_moy)) + geom_line(aes(colour=annee)) 
+
+```
+
+
+#salaire net median des emplois a temps plein par année#
+
+```{r}
+
+d2 <- df %>% 
+  filter(salaire_net_median_des_emplois_a_temps_plein!='ns',salaire_net_median_des_emplois_a_temps_plein!='nd',salaire_net_median_des_emplois_a_temps_plein!='', discipline == 'Informatique',emplois_stables!='ns',emplois_stables!='nd',emplois_stables!='', emplois_stables!= 'NA') %>%
+  group_by(annee) %>%
+  summarise(taux_moy1=mean(as.numeric(as.character(salaire_net_median_des_emplois_a_temps_plein)))/22, taux_moy=mean(as.numeric(as.character(emplois_stables)))) 
+
+d2 %>%
+  ggplot(aes(x=annee, y=taux_moy1)) + geom_line(aes(y = taux_moy, colour="tauxCDI")) + geom_line(aes(y = taux_moy1, colour="salaire"))
+
+```
+#Taux moyen de 
